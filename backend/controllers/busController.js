@@ -75,10 +75,46 @@ const deleteBus = async (req, res) => {
   }
 };
 
+const getNearbyBuses = async (req, res) => {
+  try {
+    const { longitude, latitude, maxDistance = 5000 } = req.query;
+
+    if (longitude === undefined || latitude === undefined) {
+      return res.status(400).json({
+        message: "Please provide both longitude and latitude coordinates",
+      });
+    }
+
+    const lng = parseFloat(longitude);
+    const lat = parseFloat(latitude);
+    const distanceMeters = parseInt(maxDistance, 10);
+
+    // MongoDB 2dsphere geospatial query with $near operator
+    const buses = await Bus.find({
+      currentLocation: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat],
+          },
+          $maxDistance: distanceMeters,
+        },
+      },
+    });
+
+    res.json(buses);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createBus,
   getBuses,
   getBusById,
+  getNearbyBuses,
   updateBus,
   deleteBus,
 };

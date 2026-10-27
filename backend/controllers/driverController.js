@@ -1,8 +1,35 @@
 const Driver = require("../models/Driver");
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 
 const createDriver = async (req, res) => {
   try {
-    const driver = await Driver.create(req.body);
+    let userId = req.body.user;
+
+    if (!userId && req.body.email) {
+      let existingUser = await User.findOne({ email: req.body.email });
+      if (!existingUser) {
+        const hashedPassword = await bcrypt.hash(req.body.password || "driver123", 10);
+        existingUser = await User.create({
+          name: req.body.name || "Driver",
+          email: req.body.email,
+          password: hashedPassword,
+          role: "driver",
+        });
+      }
+      userId = existingUser._id;
+    }
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "Driver user account (or name & email) is required",
+      });
+    }
+
+    const driver = await Driver.create({
+      ...req.body,
+      user: userId,
+    });
 
     const populatedDriver =
       await Driver.findById(driver._id)

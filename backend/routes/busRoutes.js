@@ -4,6 +4,7 @@ const {
   createBus,
   getBuses,
   getBusById,
+  getNearbyBuses,
   updateBus,
   deleteBus,
 } = require("../controllers/busController");
@@ -26,6 +27,13 @@ router.get(
   "/",
   protect,
   getBuses
+);
+
+// MongoDB Geospatial $near search route
+router.get(
+  "/nearby",
+  protect,
+  getNearbyBuses
 );
 
 router.get(

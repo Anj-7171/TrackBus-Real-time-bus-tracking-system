@@ -19,11 +19,20 @@ const app = express();
 // Create HTTP server
 const server = http.createServer(app);
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
+].filter(Boolean);
+
 // Create Socket.IO server
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   },
 });
 
@@ -33,7 +42,14 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, true); // Dev-friendly permissive CORS
+    },
+    credentials: true,
   })
 );
 
@@ -100,6 +116,14 @@ app.use(
   "/api/dashboard",
   require("./routes/dashboardRoutes")
 );
+
+// ===============================
+// ERROR HANDLING MIDDLEWARE
+// ===============================
+
+const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+app.use(notFound);
+app.use(errorHandler);
 
 // ===============================
 // SOCKET.IO

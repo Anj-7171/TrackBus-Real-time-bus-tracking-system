@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 
@@ -10,17 +9,20 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      setError("Please enter both email and password");
+      return;
+    }
 
     try {
+      setLoading(true);
       setError("");
-
       const data = await login(email, password);
-
       loginUser(data);
 
       if (data.user.role === "admin") {
@@ -30,41 +32,68 @@ function Login() {
       } else {
         navigate("/passenger");
       }
-    } catch (error) {
+    } catch (err) {
       setError(
-        error.response?.data?.message ||
-          "Login failed"
+        err.response?.data?.message ||
+          "Login failed. Please check your credentials and try again."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleDemoFill = (demoEmail, demoPassword) => {
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+  };
+
   return (
-    <div className="auth-container">
-      <h1>Bus Tracking System</h1>
+    <div className="auth-page-wrapper">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="auth-logo">🚌</div>
+          <h2>Welcome Back</h2>
+          <p>Real-Time Bus Tracking System</p>
+        </div>
 
-      <h2>Login</h2>
+        {error && <div className="alert-box error">{error}</div>}
 
-      {error && <p>{error}</p>}
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="email">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? "Authenticating..." : "Sign In"}
+          </button>
+        </form>
 
-        <button type="submit">
-          Login
-        </button>
-      </form>
+        <div className="auth-footer">
+          <p>
+            Don't have an account? <Link to="/register">Create one</Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
