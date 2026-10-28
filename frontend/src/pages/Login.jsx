@@ -86,6 +86,35 @@ function Login() {
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? "Authenticating..." : "Sign In"}
           </button>
+
+          <div style={{ marginTop: "16px", padding: "12px", background: "rgba(241, 245, 249, 0.7)", borderRadius: "8px", border: "1px dashed #cbd5e1" }}>
+            <p style={{ margin: "0 0 8px", fontSize: "12px", fontWeight: "600", color: "#64748b", textAlign: "center" }}>
+              ⚡ Quick Demo Credentials
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
+              <button
+                type="button"
+                onClick={() => handleDemoFill("demoadmin@test.com", "password123")}
+                style={{ padding: "6px 4px", fontSize: "11px", background: "#4f46e5", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
+              >
+                👑 Admin
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoFill("demodriver@test.com", "password123")}
+                style={{ padding: "6px 4px", fontSize: "11px", background: "#059669", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
+              >
+                🎮 Driver
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoFill("demopassenger@test.com", "password123")}
+                style={{ padding: "6px 4px", fontSize: "11px", background: "#0284c7", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
+              >
+                🧑 Passenger
+              </button>
+            </div>
+          </div>
         </form>
 
         <div className="auth-footer">
